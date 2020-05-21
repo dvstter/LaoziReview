@@ -1,13 +1,14 @@
 # -*- coding:utf-8 -*-
 
 """
-使用方法：
-1.修改chaps.txt
-2.修改pere_round，每轮章节数，total置位None为全复习，否则设置为总的随机复习章节数
+参数说明：
+	chaps_per_round 每轮章节数
+	total           None为全复习，否则设置为随机复习章节数list
 """
 
 import random
 import re
+import argparse
 
 class RandomRevive:
 	def __init__(self):
@@ -28,7 +29,8 @@ class RandomRevive:
 		f = open("output.txt",  "w")
 		keys = [x for x in self.chaps.keys()]
 		if total:
-			keys = random.choices(keys, k=total)
+			temp = total.split("-")
+			keys = [x for x in range(int(temp[0]), int(temp[1]))]
 		random.shuffle(keys)
 		rounds = []
 		rnum = int(len(keys) / per_round)
@@ -45,10 +47,17 @@ class RandomRevive:
 				
 			f.write("\n")
 			
-	def run(self, per_round, total=None):
+	def run(self, chaps_per_round, total=None):
 		self.read_chaps()
-		self.output(per_round, total)
+		self.output(chaps_per_round, total)
 		
 if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="Generate Laozi review list.")
+	parser.add_argument("-r", "--range", help="range like '1-32'", type=str)
+	parser.add_argument("-t", "--times", help="chapters per round", type=int)
+	args = parser.parse_args()
+	rng = args.range
+	chaps = args.times if args.times else 5
+	
 	rr = RandomRevive()
-	rr.run(5, total=20)
+	rr.run(chaps, rng)
